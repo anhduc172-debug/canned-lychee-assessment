@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đánh Giá Nhà Máy Vải Đóng Hộp — Self-Assessment Tool</title>
+<style>
+:root {
+  --primary: #C8102E;
+  --primary-dark: #8B0000;
+  --secondary: #2E5077;
+  --accent: #F4A300;
+  --success: #15803D;
+  --warning: #B45309;
+  --danger: #B91C1C;
+  --text: #1F2937;
+  --text-light: #6B7280;
+  --bg: #F9FAFB;
+  --bg-card: #FFFFFF;
+  --border: #E5E7EB;
+  --shadow: 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 50%, #FEF2F2 100%);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container { max-width: 800px; margin: 0 auto; }
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 30px 20px;
+  background: var(--bg-card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+.header h1 { color: var(--primary); font-size: 26px; margin-bottom: 8px; }
+.header .subtitle { color: var(--text-light); font-size: 14px; }
+.header .meta {
+  display: inline-flex; gap: 16px; margin-top: 14px;
+  font-size: 13px; color: var(--text-light);
+}
+.header .meta span { display: flex; align-items: center; gap: 4px; }
+
+/* PROGRESS */
+.progress-container {
+  background: var(--bg-card); border-radius: 12px;
+  padding: 14px 20px; margin-bottom: 20px; box-shadow: var(--shadow);
+}
+.progress-text {
+  display: flex; justify-content: space-between;
+  margin-bottom: 8px; font-size: 13px; color: var(--text-light);
+}
+.progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.4s ease; border-radius: 4px;
+}
+
+/* STEPS */
+.step {
+  background: var(--bg-card); border-radius: 16px;
+  padding: 30px; box-shadow: var(--shadow);
+  display: none; animation: fadeIn 0.35s ease;
+}
+.step.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-category {
+  display: inline-block; background: var(--bg);
+  color: var(--secondary); padding: 4px 12px;
+  border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 12px;
+}
+.step h2 { color: var(--text); font-size: 19px; margin-bottom: 8px; line-height: 1.4; }
+.question-hint { color: var(--text-light); font-size: 13px; margin-bottom: 22px; font-style: italic; }
+
+/* OPTIONS */
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option {
+  border: 2px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; cursor: pointer; transition: all 0.2s;
+  background: var(--bg-card); display: flex; align-items: center; gap: 12px;
+}
+.option:hover { border-color: var(--accent); background: #FFFBEB; }
+.option.selected { border-color: var(--primary); background: #FEF2F2; }
+.option-radio {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.option.selected .option-radio { border-color: var(--primary); }
+.option.selected .option-radio::after {
+  content: ''; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--primary);
+}
+.option-text { flex: 1; font-size: 14px; }
+
+/* NAV */
+.nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.btn {
+  padding: 11px 22px; border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; font-family: inherit;
+}
+.btn-primary { background: var(--primary); color: white; flex: 1; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.btn-primary:disabled { background: #FCA5A5; cursor: not-allowed; transform: none; }
+.btn-secondary { background: var(--bg); color: var(--text); }
+.btn-secondary:hover { background: var(--border); }
+
+/* CONTACT FORM */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; margin-bottom: 6px;
+  font-size: 13px; font-weight: 600; color: var(--text);
+}
+.form-group input {
+  width: 100%; padding: 11px 14px;
+  border: 2px solid var(--border); border-radius: 10px;
+  font-size: 14px; transition: border-color 0.2s; font-family: inherit;
+}
+.form-group input:focus { outline: none; border-color: var(--primary); }
+.privacy-note {
+  background: var(--bg); padding: 12px 16px; border-radius: 10px;
+  font-size: 12px; color: var(--text-light); margin: 14px 0 20px; line-height: 1.5;
+}
+
+/* LOADING */
+.loading-overlay {
+  display: none; text-align: center; padding: 40px 20px;
+  background: var(--bg-card); border-radius: 16px; box-shadow: var(--shadow);
+}
+.loading-overlay.active { display: block; }
+.spinner {
+  width: 36px; height: 36px; border: 3px solid var(--border);
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 15px; color: var(--text-light); }
+
+/* RESULT */
+.result-container { display: none; }
+.result-container.active { display: block; }
+
+.result-hero {
+  background: var(--bg-card); border-radius: 16px;
+  padding: 36px 30px; margin-bottom: 20px;
+  box-shadow: var(--shadow-lg); text-align: center;
+}
+.result-score {
+  font-size: 60px; font-weight: 700; line-height: 1;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin: 14px 0 10px;
+}
+.result-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 22px; border-radius: 30px;
+  font-size: 15px; font-weight: 700; margin-bottom: 14px;
+}
+.badge-red { background: #FEE2E2; color: #991B1B; }
+.badge-yellow { background: #FEF3C7; color: #92400E; }
+.badge-green { background: #DCFCE7; color: #166534; }
+
+.result-label-desc {
+  font-size: 14px; color: var(--text-light);
+  max-width: 480px; margin: 0 auto 20px;
+}
+
+/* AREA BREAKDOWN */
+.section-card {
+  background: var(--bg-card); border-radius: 16px;
+  padding: 24px; margin-bottom: 16px; box-shadow: var(--shadow);
+}
+.section-card h3 {
+  color: var(--secondary); font-size: 16px; margin-bottom: 16px;
+  padding-bottom: 10px; border-bottom: 2px solid var(--border);
+}
+.area-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.area-row:last-child { border-bottom: none; }
+.area-icon { font-size: 22px; width: 36px; text-align: center; }
+.area-info { flex: 1; }
+.area-name { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+.area-status { font-size: 11px; color: var(--text-light); }
+.area-bar {
+  width: 90px; height: 6px; background: var(--border);
+  border-radius: 3px; overflow: hidden; margin-left: auto;
+}
+.area-bar-fill { height: 100%; border-radius: 3px; }
+
+/* THANK YOU BOX */
+.thankyou-box {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2E5077 100%);
+  color: white; border-radius: 16px; padding: 28px 24px;
+  margin-bottom: 16px; text-align: center;
+}
+.thankyou-box h3 { font-size: 18px; margin-bottom: 10px; color: white; }
+.thankyou-box p { font-size: 14px; opacity: 0.88; line-height: 1.6; margin-bottom: 8px; }
+.thankyou-email-badge {
+  display: inline-block; background: rgba(255,255,255,0.15);
+  padding: 6px 16px; border-radius: 20px; font-size: 13px;
+  margin-top: 8px; font-weight: 600;
+}
+
+/* NEXT STEPS */
+.next-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.next-step-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px; background: var(--bg);
+  border-radius: 10px; border-left: 3px solid var(--border);
+}
+.next-step-item.tier-green { border-left-color: var(--success); }
+.next-step-item.tier-yellow { border-left-color: var(--warning); }
+.next-step-item.tier-red { border-left-color: var(--danger); }
+.next-step-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.next-step-content h4 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.next-step-content p { font-size: 12px; color: var(--text-light); line-height: 1.4; }
+
+/* SUBMIT STATUS */
+.submit-status {
+  font-size: 13px; padding: 10px 14px; border-radius: 8px;
+  margin-top: 12px; display: none;
+}
+.submit-status.success { background: #DCFCE7; color: #166534; display: block; }
+.submit-status.error { background: #FEE2E2; color: #991B1B; display: block; }
+
+/* RESET */
+.reset-btn {
+  display: block; text-align: center; margin: 16px auto 0;
+  font-size: 13px; color: var(--text-light); cursor: pointer;
+  background: none; border: none; padding: 8px; text-decoration: underline;
+  font-family: inherit;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  body { padding: 12px; }
+  .header { padding: 22px 16px; }
+  .header h1 { font-size: 20px; }
+  .step { padding: 20px; }
+  .step h2 { font-size: 17px; }
+  .result-score { font-size: 48px; }
+}
+
+.footer-note {
+  text-align: center; color: var(--text-light);
+  font-size: 12px; margin-top: 28px; padding: 16px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header" id="mainHeader">
+    <h1>🏭 Đánh Giá Nhà Máy Vải Đóng Hộp</h1>
+    <p class="subtitle">Self-Assessment Tool — Xác định điểm yếu và cơ hội cải tiến</p>
+    <div class="meta">
+      <span>⏱️ ~10 phút</span>
+      <span>📊 15 câu hỏi</span>
+      <span>🆓 Hoàn toàn miễn phí</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-text">
+      <span id="progressLabel">Câu 1 / 15</span>
+      <span id="progressPercent">7%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:7%"></div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS (rendered by JS) -->
+  <div id="questionsContainer"></div>
+
+  <!-- CONTACT STEP -->
+  <div class="step" id="contactStep">
+    <div class="step-category">📧 Bước cuối</div>
+    <h2>Nhận báo cáo cá nhân hóa của bạn</h2>
+    <p class="question-hint">Điền thông tin để chúng tôi gửi báo cáo chi tiết + lộ trình hành động phù hợp với nhà máy của bạn.</p>
+
+    <div class="form-group">
+      <label for="contactName">Tên của bạn *</label>
+      <input type="text" id="contactName" placeholder="Nguyễn Văn A">
+    </div>
+    <div class="form-group">
+      <label for="contactEmail">Email *</label>
+      <input type="email" id="contactEmail" placeholder="email@congty.com">
+    </div>
+    <div class="form-group">
+      <label for="contactCompany">Nhà máy / Công ty</label>
+      <input type="text" id="contactCompany" placeholder="(Tùy chọn)">
+    </div>
+    <div class="form-group">
+      <label for="contactRole">Vai trò</label>
+      <input type="text" id="contactRole" placeholder="Giám đốc sản xuất, Chủ doanh nghiệp...">
+    </div>
+
+    <div class="privacy-note">
+      🔒 Thông tin của bạn được bảo mật. Chúng tôi chỉ dùng email để gửi báo cáo phân tích và tài liệu chuyên môn (1–2 lần/tháng). Hủy đăng ký bất cứ lúc nào.
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-secondary" onclick="prevStep()">← Quay lại</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitAssessment()">Xem kết quả của tôi →</button>
+    </div>
+    <div class="submit-status" id="submitStatus"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Đang xử lý kết quả của bạn...</div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-container" id="resultContainer"></div>
+
+  <div class="footer-note">
+    Tool phát hành miễn phí kèm Whitepaper Vải Thiều Đóng Hộp v1.0
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// CẤU HÌNH — thay YOUR_GOOGLE_SCRIPT_URL bằng URL thực
+// ============================================================
+const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL';
+
+// ============================================================
+// DỮ LIỆU 15 CÂU HỎI
+// ============================================================
+const QUESTIONS = [
+  // NHÓM 1: NGUYÊN LIỆU
+  { cat:"Nguyên liệu đầu vào", icon:"🍒", area:"raw_material",
+    q:"Brix cùi vải tươi được kiểm tra thế nào khi nhận hàng?",
+    hint:"Đo độ ngọt nguyên liệu là cơ sở để tính công thức dịch đường",
+    opts:[
+      {t:"Đo Brix mỗi lô, ít nhất 5 quả/lô, có ghi chép",s:10},
+      {t:"Đo Brix mỗi lô nhưng chỉ 1–2 quả",s:6},
+      {t:"Đo thỉnh thoảng khi nghi ngờ",s:3},
+      {t:"Không đo Brix nguyên liệu",s:0}]},
+  { cat:"Nguyên liệu đầu vào", icon:"🍒", area:"raw_material",
+    q:"Thời gian từ thu hoạch đến đưa vào sản xuất?",
+    hint:"Vải sau 24h dễ bị nâu hóa do enzym PPO hoạt động mạnh",
+    opts:[
+      {t:"Dưới 12 giờ — vải tươi, sản xuất trong ngày",s:10},
+      {t:"12–24 giờ — có kiểm soát chuỗi lạnh",s:8},
+      {t:"24–48 giờ — vải có dấu hiệu mềm/nâu",s:4},
+      {t:"Trên 48 giờ hoặc không kiểm soát",s:0}]},
+  // NHÓM 2: NƯỚC PHA CHẾ
+  { cat:"Nước pha chế", icon:"💧", area:"water",
+    q:"Hàm lượng sắt (Fe) trong nước pha chế được kiểm tra như thế nào?",
+    hint:"Sắt là nguyên nhân chính gây màu tím xanh sau bảo quản",
+    opts:[
+      {t:"Test Fe hàng tuần, kết quả < 0.05 mg/L",s:10},
+      {t:"Test Fe hàng tháng, đạt chuẩn nước sinh hoạt",s:6},
+      {t:"Chỉ test khi xảy ra vấn đề",s:3},
+      {t:"Không test Fe / không biết mức Fe trong nước",s:0}]},
+  { cat:"Nước pha chế", icon:"💧", area:"water",
+    q:"Nhà máy có hệ thống xử lý nước riêng không?",
+    hint:"Nước sinh hoạt thông thường KHÔNG đủ cho sản xuất xuất khẩu",
+    opts:[
+      {t:"Có hệ thống nhiều bước: lọc + RO/trao đổi ion + UV",s:10},
+      {t:"Có lọc cơ học và than hoạt tính",s:6},
+      {t:"Chỉ lắng và lọc đơn giản",s:3},
+      {t:"Dùng trực tiếp nước cấp / nước giếng chưa xử lý",s:0}]},
+  // NHÓM 3: CÔNG THỨC DỊCH ĐƯỜNG
+  { cat:"Công thức dịch đường", icon:"🥄", area:"syrup",
+    q:"Acid citric trong dịch đường được kiểm soát như thế nào?",
+    hint:"Vùng tối ưu là 0.19–0.22%. Quá nhiều gây đỏ hóa, quá ít không chelate được Fe",
+    opts:[
+      {t:"Cân chính xác theo công thức, test pH sau pha",s:10},
+      {t:"Cân theo công thức nhưng không test lại pH",s:6},
+      {t:"Ước lượng theo kinh nghiệm, không cân chính xác",s:3},
+      {t:"Không có công thức cố định / mỗi mẻ khác nhau",s:0}]},
+  { cat:"Công thức dịch đường", icon:"🥄", area:"syrup",
+    q:"pH thành phẩm thực tế của sản phẩm là bao nhiêu?",
+    hint:"Khoảng tối ưu: 3.5–4.0. Dưới 3.5 dễ đỏ hóa, trên 4.0 rủi ro vi sinh",
+    opts:[
+      {t:"3.5–4.0 (đo định kỳ, có dữ liệu)",s:10},
+      {t:"3.2–3.5 hoặc 4.0–4.3 (lệch chuẩn)",s:5},
+      {t:"Dưới 3.2 hoặc trên 4.3",s:2},
+      {t:"Không đo pH thành phẩm",s:0}]},
+  // NHÓM 4: PHỤ GIA
+  { cat:"Phụ gia", icon:"⚗️", area:"additives",
+    q:"Phụ gia ngâm làm trắng đang sử dụng là gì?",
+    hint:"Lựa chọn phụ gia ảnh hưởng trực tiếp đến khả năng xuất khẩu cao cấp",
+    opts:[
+      {t:"Acid citric + Ascorbic / Erythorbate (không sulfite)",s:10},
+      {t:"Sulfite liều thấp + rửa kỹ + lon vecni BPA-NI",s:7},
+      {t:"Sulfite + lon vecni thông thường",s:4},
+      {t:"Sulfite + lon thiếc trắng (rủi ro đốm đen)",s:0}]},
+  { cat:"Phụ gia", icon:"⚗️", area:"additives",
+    q:"Liều lượng phụ gia được kiểm soát như thế nào?",
+    hint:"Liều sulfite quá cao gây vị khét và vượt ngưỡng cho phép của EU",
+    opts:[
+      {t:"Cân chính xác từng mẻ, có log, test SO₂ tồn dư",s:10},
+      {t:"Cân chính xác nhưng không test tồn dư",s:6},
+      {t:"Ước lượng theo kinh nghiệm",s:3},
+      {t:"Không có quy trình kiểm soát phụ gia",s:0}]},
+  // NHÓM 5: BAO BÌ
+  { cat:"Bao bì", icon:"🥫", area:"packaging",
+    q:"Loại lon đang sử dụng cho sản phẩm xuất khẩu?",
+    hint:"Bao bì quyết định khả năng vào thị trường EU / Nhật / Mỹ cao cấp",
+    opts:[
+      {t:"Lon vecni BPA-NI hoặc lọ thủy tinh",s:10},
+      {t:"Lon vecni epoxy có BPA",s:6},
+      {t:"Lon thiếc trắng truyền thống",s:3},
+      {t:"Không kiểm soát rõ loại vecni của lon",s:0}]},
+  { cat:"Bao bì", icon:"🥫", area:"packaging",
+    q:"Lon được kiểm tra chất lượng vecni trước khi nhập kho không?",
+    hint:"Vecni bị xước hoặc lỗi sẽ gây ăn mòn và đốm đen trên sản phẩm",
+    opts:[
+      {t:"Có quy trình kiểm tra, có giấy COA cho mỗi lô lon nhập",s:10},
+      {t:"Kiểm tra ngẫu nhiên một số mẫu",s:6},
+      {t:"Chỉ kiểm tra khi xảy ra vấn đề",s:3},
+      {t:"Không kiểm tra / tin tưởng hoàn toàn nhà cung cấp",s:0}]},
+  // NHÓM 6: THANH TRÙNG
+  { cat:"Thanh trùng", icon:"🔥", area:"sterilization",
+    q:"F₀ thanh trùng được tính toán và kiểm soát như thế nào?",
+    hint:"F₀ tối ưu cho vải đóng hộp là 5–7 phút. Quá nhiều gây đỏ + cùi nhũn",
+    opts:[
+      {t:"Có heat penetration study, F₀ tính theo từng kích thước lon",s:10},
+      {t:"Tính F₀ chung cho toàn nhà máy, không phân kích thước",s:6},
+      {t:"Đặt thời gian-nhiệt độ theo kinh nghiệm, không tính F₀",s:3},
+      {t:"Không biết F₀ của quy trình hiện tại",s:0}]},
+  { cat:"Thanh trùng", icon:"🔥", area:"sterilization",
+    q:"Tốc độ làm mát sau thanh trùng?",
+    hint:"Làm mát chậm là nguyên nhân chính gây đỏ hóa và cùi nhũn",
+    opts:[
+      {t:"Đạt < 30°C trong < 25 phút",s:10},
+      {t:"Đạt < 30°C trong 25–40 phút",s:6},
+      {t:"Đạt < 30°C trong > 40 phút",s:3},
+      {t:"Để nguội tự nhiên / không kiểm soát",s:0}]},
+  // NHÓM 7: HỆ THỐNG QLCL
+  { cat:"Hệ thống quản lý chất lượng", icon:"📋", area:"system",
+    q:"Nhà máy có những chứng nhận nào hiện tại?",
+    hint:"Chứng nhận là điều kiện cần để vào thị trường xuất khẩu cao cấp",
+    opts:[
+      {t:"BRC / IFS / FSSC 22000 + HACCP đầy đủ",s:10},
+      {t:"HACCP + ISO 22000",s:7},
+      {t:"Chỉ HACCP cơ bản",s:4},
+      {t:"Chưa có chứng nhận quốc tế",s:0}]},
+  // NHÓM 8: VẤN ĐỀ & THỊ TRƯỜNG
+  { cat:"Vấn đề thực tế", icon:"⚠️", area:"problems",
+    q:"Vấn đề chất lượng nghiêm trọng nhất nhà máy đang gặp?",
+    hint:"Câu này giúp lộ trình đề xuất ưu tiên đúng điểm cần can thiệp",
+    opts:[
+      {t:"Không có vấn đề lớn — sản phẩm ổn định",s:10,prob:"none"},
+      {t:"Vải chuyển hồng/đỏ sau thanh trùng",s:5,prob:"red"},
+      {t:"Dịch chuyển tím xanh sau bảo quản",s:3,prob:"blue"},
+      {t:"Đốm đen trên lon / cùi mất giòn / nhiều vấn đề cùng lúc",s:2,prob:"multiple"}]},
+  { cat:"Thị trường mục tiêu", icon:"🌍", area:"market",
+    q:"Thị trường xuất khẩu chính / mục tiêu của bạn?",
+    hint:"Mỗi thị trường có yêu cầu khác nhau — lộ trình sẽ tùy chỉnh theo đây",
+    opts:[
+      {t:"EU / Nhật / Mỹ cao cấp",s:10,mkt:"premium"},
+      {t:"Hàn Quốc / Singapore / Trung Đông (Halal)",s:8,mkt:"mid"},
+      {t:"Trung Quốc / ASEAN / nội địa",s:5,mkt:"regional"},
+      {t:"Chưa xuất khẩu / chỉ nội địa",s:3,mkt:"domestic"}]}
+];
+
+// ============================================================
+// AREA CONFIG (weight cho điểm tổng)
+// ============================================================
+const AREAS = {
+  raw_material:   { name:"Nguyên liệu",       icon:"🍒", weight:0.10 },
+  water:          { name:"Nước pha chế",      icon:"💧", weight:0.18 },
+  syrup:          { name:"Công thức dịch",    icon:"🥄", weight:0.15 },
+  additives:      { name:"Phụ gia",           icon:"⚗️", weight:0.10 },
+  packaging:      { name:"Bao bì",            icon:"🥫", weight:0.15 },
+  sterilization:  { name:"Thanh trùng",       icon:"🔥", weight:0.15 },
+  system:         { name:"Hệ thống QLCL",    icon:"📋", weight:0.12 },
+  problems:       { name:"Vấn đề thực tế",   icon:"⚠️", weight:0.05 },
+  market:         { name:"Thị trường",        icon:"🌍", weight:0.00 }
+};
+
+// ============================================================
+// MỨC ĐỘ PHÂN LOẠI (3 mức B2B)
+// ============================================================
+const TIERS = [
+  {
+    min:0, max:54,
+    badge:"🔴 Cần tái cấu trúc quy trình",
+    cls:"badge-red",
+    desc:"Nhà máy đang có nhiều điểm tới hạn (CCP) chưa được kiểm soát. Đây là rủi ro thực sự khi xuất khẩu — báo cáo chi tiết sẽ chỉ rõ thứ tự can thiệp theo ROI.",
+    steps:[
+      { tier:"tier-red", icon:"🔴", title:"Ưu tiên cao — Tư vấn 1:1",
+        desc:"Nhiều CCP cùng lúc cần được audit toàn diện và lộ trình cụ thể theo ngân sách." },
+      { tier:"tier-yellow", icon:"🟡", title:"Tải Deep-dive Report",
+        desc:"Phân tích chi tiết từng điểm tới hạn và protocol chuẩn hóa." },
+      { tier:"tier-green", icon:"🟢", title:"Tải miễn phí ngay",
+        desc:"Bộ Checklist + Bảng tra tiêu chuẩn xuất khẩu." }
+    ]
+  },
+  {
+    min:55, max:79,
+    badge:"🟡 Đang phát triển — còn lỗ hổng",
+    cls:"badge-yellow",
+    desc:"Nền tảng kỹ thuật có, nhưng còn 1–2 lỗ hổng quan trọng có thể gây trả hàng hoặc mất hợp đồng. Báo cáo chi tiết sẽ chỉ rõ đâu cần vá ngay, đâu có thể để sau.",
+    steps:[
+      { tier:"tier-yellow", icon:"🟡", title:"Tải tài liệu chuyên sâu",
+        desc:"Deep-dive Report + Calculator công thức dịch đường giúp chuẩn hóa quy trình hiệu quả." },
+      { tier:"tier-green", icon:"🟢", title:"Tải miễn phí ngay",
+        desc:"Bảng tra tiêu chuẩn xuất khẩu EU / Nhật / Hàn Quốc." },
+      { tier:"tier-red", icon:"🔴", title:"Tư vấn 1:1 nếu cần",
+        desc:"Phù hợp nếu mục tiêu là đạt BRC/FSSC 22000 trong 12 tháng." }
+    ]
+  },
+  {
+    min:80, max:100,
+    badge:"🟢 Sẵn sàng cạnh tranh xuất khẩu",
+    cls:"badge-green",
+    desc:"Nhà máy đang ở mức cao của ngành — đủ nền tảng để vào thị trường xuất khẩu cạnh tranh. Bước tiếp theo là tối ưu hóa chi tiết và mở rộng danh mục thị trường.",
+    steps:[
+      { tier:"tier-green", icon:"🟢", title:"Tối ưu & mở rộng thị trường",
+        desc:"Đọc Whitepaper phần 4 — Lộ trình ROI và định vị thị trường cao cấp." },
+      { tier:"tier-yellow", icon:"🟡", title:"Nâng cấp chứng nhận",
+        desc:"BRC/FSSC 22000 mở cửa thêm EU và chuỗi siêu thị quốc tế." },
+      { tier:"tier-green", icon:"🟢", title:"Tải Bảng tra tiêu chuẩn",
+        desc:"So sánh yêu cầu EU / Nhật / Mỹ / Hàn Quốc để chọn thị trường tiếp theo." }
+    ]
+  }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentStep = 0;
+const answers = {};
+const TOTAL_STEPS = QUESTIONS.length + 1;
+
+// ============================================================
+// KHỞI TẠO
+// ============================================================
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  QUESTIONS.forEach((q, idx) => {
+    const el = document.createElement('div');
+    el.className = 'step' + (idx === 0 ? ' active' : '');
+    el.id = 'step-' + idx;
+    el.innerHTML = `
+      <div class="step-category">${q.icon} ${q.cat}</div>
+      <h2>${q.q}</h2>
+      <p class="question-hint">💡 ${q.hint}</p>
+      <div class="options" id="opts-${idx}">
+        ${q.opts.map((o, i) => `
+          <div class="option" data-i="${i}" onclick="selectOption(${idx},${i})">
+            <div class="option-radio"></div>
+            <div class="option-text">${o.t}</div>
+          </div>`).join('')}
+      </div>
+      <div class="nav">
+        ${idx > 0
+          ? '<button class="btn btn-secondary" onclick="prevStep()">← Quay lại</button>'
+          : '<div></div>'}
+        <button class="btn btn-primary" id="nb-${idx}" onclick="nextStep()" disabled>
+          ${idx === QUESTIONS.length - 1 ? 'Tiếp theo' : 'Tiếp theo →'}
+        </button>
+      </div>`;
+    container.appendChild(el);
+  });
+}
+
+function selectOption(qi, oi) {
+  answers[qi] = oi;
+  document.querySelectorAll(`#opts-${qi} .option`).forEach((el, i) =>
+    el.classList.toggle('selected', i === oi));
+  document.getElementById(`nb-${qi}`).disabled = false;
+}
+
+function updateProgress() {
+  const pct = Math.round(((currentStep + 1) / TOTAL_STEPS) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPercent').textContent = pct + '%';
+  document.getElementById('progressLabel').textContent =
+    currentStep < QUESTIONS.length
+      ? `Câu ${currentStep + 1} / ${QUESTIONS.length}`
+      : 'Bước cuối: Thông tin liên hệ';
+}
+
+function showStep(idx) {
+  document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+  if (idx < QUESTIONS.length) {
+    document.getElementById('step-' + idx).classList.add('active');
+  } else {
+    document.getElementById('contactStep').classList.add('active');
+  }
+  currentStep = idx;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() { if (currentStep < TOTAL_STEPS - 1) showStep(currentStep + 1); }
+function prevStep() { if (currentStep > 0) showStep(currentStep - 1); }
+
+// ============================================================
+// TÍNH ĐIỂM
+// ============================================================
+function calcScores() {
+  const aS = {}, aM = {};
+  Object.keys(AREAS).forEach(k => { aS[k] = 0; aM[k] = 0; });
+
+  QUESTIONS.forEach((q, i) => {
+    if (answers[i] !== undefined) {
+      aS[q.area] = (aS[q.area] || 0) + q.opts[answers[i]].s;
+      aM[q.area] = (aM[q.area] || 0) + 10;
+    }
+  });
+
+  let wScore = 0, wTotal = 0;
+  Object.keys(AREAS).forEach(k => {
+    if (aM[k] > 0 && AREAS[k].weight > 0) {
+      wScore += (aS[k] / aM[k]) * AREAS[k].weight * 100;
+      wTotal += AREAS[k].weight;
+    }
+  });
+
+  const score = wTotal > 0 ? Math.round(wScore / wTotal) : 50;
+  return { aS, aM, score };
+}
+
+function getTier(score) {
+  return TIERS.find(t => score >= t.min && score <= t.max) || TIERS[0];
+}
+
+// ============================================================
+// BUILD PAYLOAD CHO GOOGLE SHEET
+// ============================================================
+function buildPayload(name, email, company, role, score, aS, aM) {
+  const timestamp = new Date().toISOString();
+  const tier = getTier(score);
+
+  const answerLog = QUESTIONS.map((q, i) =>
+    answers[i] !== undefined ? q.opts[answers[i]].t : '(Bỏ qua)'
+  );
+
+  const areaScoreLog = Object.keys(AREAS)
+    .filter(k => aM[k] > 0 && AREAS[k].weight > 0)
+    .map(k => `${AREAS[k].name}: ${Math.round((aS[k]/aM[k])*100)}%`)
+    .join(' | ');
+
+  const problemOpt = answers[13] !== undefined ? QUESTIONS[13].opts[answers[13]] : null;
+  const marketOpt  = answers[14] !== undefined ? QUESTIONS[14].opts[answers[14]] : null;
+
+  return {
+    timestamp,
+    name, email, company, role,
+    score,
+    tier_label: tier.badge,
+    problem: problemOpt ? (problemOpt.prob || 'none') : 'unknown',
+    market:  marketOpt  ? (marketOpt.mkt  || 'unknown') : 'unknown',
+    area_scores: areaScoreLog,
+    // 15 câu trả lời riêng lẻ để sheet dễ filter
+    q01: answerLog[0],  q02: answerLog[1],  q03: answerLog[2],
+    q04: answerLog[3],  q05: answerLog[4],  q06: answerLog[5],
+    q07: answerLog[6],  q08: answerLog[7],  q09: answerLog[8],
+    q10: answerLog[9],  q11: answerLog[10], q12: answerLog[11],
+    q13: answerLog[12], q14: answerLog[13], q15: answerLog[14]
+  };
+}
+
+// ============================================================
+// SUBMIT → GOOGLE SHEET
+// ============================================================
+async function submitAssessment() {
+  const name    = document.getElementById('contactName').value.trim();
+  const email   = document.getElementById('contactEmail').value.trim();
+  const company = document.getElementById('contactCompany').value.trim();
+  const role    = document.getElementById('contactRole').value.trim();
+
+  if (!name || !email) {
+    alert('Vui lòng nhập tên và email để tiếp tục.');
+    return;
+  }
+  if (!email.includes('@')) {
+    alert('Email không hợp lệ.');
+    return;
+  }
+
+  // Disable nút, show loading
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('contactStep').style.display = 'none';
+  document.getElementById('progressContainer').style.display = 'none';
+  document.getElementById('loadingOverlay').classList.add('active');
+
+  const { aS, aM, score } = calcScores();
+  const payload = buildPayload(name, email, company, role, score, aS, aM);
+
+  // Gửi về Google Sheet
+  let sheetOk = false;
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    sheetOk = res.ok;
+  } catch (e) {
+    // Vẫn hiện kết quả — ghi log lỗi
+    console.error('Google Sheet submit error:', e);
+  }
+
+  document.getElementById('loadingOverlay').classList.remove('active');
+  renderResult(name, email, score, aS, aM, sheetOk);
+}
+
+// ============================================================
+// RENDER KẾT QUẢ
+// ============================================================
+function renderResult(name, email, score, aS, aM, sheetOk) {
+  const tier = getTier(score);
+
+  // Area breakdown rows
+  const areaRows = Object.keys(AREAS)
+    .filter(k => aM[k] > 0 && AREAS[k].weight > 0)
+    .map(k => {
+      const pct = Math.round((aS[k] / aM[k]) * 100);
+      const color = pct >= 70 ? '#15803D' : pct >= 50 ? '#B45309' : '#B91C1C';
+      const status = pct >= 70 ? 'Tốt' : pct >= 50 ? 'Cần cải tiến' : 'Có vấn đề';
+      return `
+        <div class="area-row">
+          <div class="area-icon">${AREAS[k].icon}</div>
+          <div class="area-info">
+            <div class="area-name">${AREAS[k].name}</div>
+            <div class="area-status">${pct}% — ${status}</div>
+          </div>
+          <div class="area-bar">
+            <div class="area-bar-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+        </div>`;
+    }).join('');
+
+  // Next steps
+  const stepsHtml = tier.steps.map(s => `
+    <div class="next-step-item ${s.tier}">
+      <div class="next-step-icon">${s.icon}</div>
+      <div class="next-step-content">
+        <h4>${s.title}</h4>
+        <p>${s.desc}</p>
+      </div>
+    </div>`).join('');
+
+  const submitNote = sheetOk
+    ? '✅ Thông tin của bạn đã được ghi nhận thành công.'
+    : '⚠️ Có lỗi kết nối — vui lòng chụp màn hình kết quả để lưu lại.';
+
+  const rc = document.getElementById('resultContainer');
+  rc.innerHTML = `
+    <!-- SCORE HERO -->
+    <div class="result-hero">
+      <div class="step-category">📊 Kết quả đánh giá cho ${escHtml(name)}</div>
+      <div class="result-score">${score}<span style="font-size:28px;color:var(--text-light)">/100</span></div>
+      <div class="result-badge ${tier.cls}">${tier.badge}</div>
+      <p class="result-label-desc">${tier.desc}</p>
+    </div>
+
+    <!-- AREA BREAKDOWN -->
+    <div class="section-card">
+      <h3>📈 Điểm số theo từng điểm tới hạn</h3>
+      ${areaRows}
+    </div>
+
+    <!-- THANK YOU + EMAIL NOTIFICATION -->
+    <div class="thankyou-box">
+      <h3>✉️ Báo cáo chi tiết đang được chuẩn bị</h3>
+      <p>Chúng tôi sẽ phân tích kết quả và gửi báo cáo cá nhân hóa kèm lộ trình hành động cụ thể về email của bạn trong vòng <strong>24 giờ làm việc</strong>.</p>
+      <div class="thankyou-email-badge">📧 ${escHtml(email)}</div>
+      <p style="margin-top:12px;font-size:12px;opacity:0.7">${submitNote}</p>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <div class="section-card">
+      <h3>🎯 Bước tiếp theo phù hợp với mức độ của bạn</h3>
+      <div class="next-steps">${stepsHtml}</div>
+    </div>
+
+    <button class="reset-btn" onclick="window.location.reload()">🔄 Đánh giá lại từ đầu</button>
+  `;
+
+  rc.style.display = 'block';
+  rc.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderQuestions();
+updateProgress();
+</script>
+</body>
+</html>
